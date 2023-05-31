@@ -20,6 +20,7 @@ const (
 	TypeTime
 	TypeJSON
 	TypeUUID
+	TypeINET6
 	TypeBytes
 	TypeEnum
 	TypeString
@@ -162,6 +163,7 @@ var (
 		TypeTime:    "time.Time",
 		TypeJSON:    "json.RawMessage",
 		TypeUUID:    "[16]byte",
+		TypeINET6:   "net.IP",
 		TypeBytes:   "[]byte",
 		TypeEnum:    "string",
 		TypeString:  "string",
@@ -182,6 +184,7 @@ var (
 	constNames = [...]string{
 		TypeJSON:  "TypeJSON",
 		TypeUUID:  "TypeUUID",
+		TypeINET6: "TypeINET6",
 		TypeTime:  "TypeTime",
 		TypeEnum:  "TypeEnum",
 		TypeBytes: "TypeBytes",

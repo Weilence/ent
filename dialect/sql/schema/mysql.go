@@ -280,6 +280,8 @@ func (d *MySQL) cType(c *Column) (t string) {
 		t = fmt.Sprintf("enum(%s)", strings.Join(values, ", "))
 	case field.TypeUUID:
 		t = "char(36) binary"
+	case field.TypeINET6:
+		t = "inet6"
 	case field.TypeOther:
 		t = c.typ
 	default:
@@ -909,6 +911,8 @@ func (d *MySQL) atTypeC(c1 *Column, c2 *schema.Column) error {
 		// and "COLLATE utf8mb4_bin" in MySQL >= 8. However we already set the table to
 		t = &schema.StringType{T: mysql.TypeChar, Size: 36}
 		c2.SetCollation("utf8mb4_bin")
+	case field.TypeINET6:
+		t = &schema.INET6Type{T: mysql.TypeINET6}
 	default:
 		t, err := mysql.ParseType(strings.ToLower(c1.typ))
 		if err != nil {

@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net"
 	"reflect"
 	"regexp"
 	"strings"
@@ -160,6 +161,57 @@ func UUID(name string, typ driver.Valuer) *uuidBuilder {
 	}}
 	b.desc.goType(typ)
 	return b
+}
+
+// INET6 returns a new Field with type INET6. An example for defining INET6 field is as follows:
+//
+//	field.INET6("ipv6")
+func INET6(name string) *inet6Builder {
+	b := &inet6Builder{&Descriptor{
+		Name: name,
+		Info: &TypeInfo{
+			Type: TypeINET6,
+		},
+		ValueScanner: ValueScannerFunc[net.IP, *inet6Scanner]{
+			V: func(v net.IP) (driver.Value, error) {
+				return inet6Scanner(v).Value()
+			},
+			S: func(v *inet6Scanner) (net.IP, error) {
+				return net.IP(*v), nil
+			},
+		},
+	}}
+	b.desc.goType(net.IP{})
+	return b
+}
+
+type inet6Scanner net.IP
+
+// Scan implements field.ValueScanner
+func (v *inet6Scanner) Scan(src any) error {
+	var ip net.IP
+	switch d := src.(type) {
+	case []byte:
+		ip = net.ParseIP(string(d))
+	case string:
+		ip = net.ParseIP(d)
+	default:
+		return fmt.Errorf("invalid ip address: %v", src)
+	}
+
+	*v = inet6Scanner(ip)
+	return nil
+}
+
+// Value implements driver.Valuer
+func (v inet6Scanner) Value() (driver.Value, error) {
+	ip := net.IP(v)
+	str := ip.String()
+	if ip.To4() != nil {
+		return "::ffff:" + str, nil
+	} else {
+		return str, nil
+	}
 }
 
 // Other represents a field that is not a good fit for any of the standard field types.
@@ -1039,6 +1091,97 @@ func (b *uuidBuilder) Annotations(annotations ...schema.Annotation) *uuidBuilder
 
 // Descriptor implements the ent.Field interface by returning its descriptor.
 func (b *uuidBuilder) Descriptor() *Descriptor {
+	b.desc.checkGoType(valueScannerType)
+	return b.desc
+}
+
+// inet6Builder is the builder for inet6 fields.
+type inet6Builder struct {
+	desc *Descriptor
+}
+
+// StorageKey sets the storage key of the field.
+// In SQL dialects is the column name and Gremlin is the property.
+func (b *inet6Builder) StorageKey(key string) *inet6Builder {
+	b.desc.StorageKey = key
+	return b
+}
+
+// Nillable indicates that this field is a nillable.
+// Unlike "Optional" only fields, "Nillable" fields are pointers in the generated struct.
+func (b *inet6Builder) Nillable() *inet6Builder {
+	b.desc.Nillable = true
+	return b
+}
+
+// Optional indicates that this field is optional on create.
+// Unlike edges, fields are required by default.
+func (b *inet6Builder) Optional() *inet6Builder {
+	b.desc.Optional = true
+	return b
+}
+
+// Unique makes the field unique within all vertices of this type.
+func (b *inet6Builder) Unique() *inet6Builder {
+	b.desc.Unique = true
+	return b
+}
+
+// Immutable indicates that this field cannot be updated.
+func (b *inet6Builder) Immutable() *inet6Builder {
+	b.desc.Immutable = true
+	return b
+}
+
+// Comment sets the comment of the field.
+func (b *inet6Builder) Comment(c string) *inet6Builder {
+	b.desc.Comment = c
+	return b
+}
+
+// StructTag sets the struct tag of the field.
+func (b *inet6Builder) StructTag(s string) *inet6Builder {
+	b.desc.Tag = s
+	return b
+}
+
+// Default sets the function that is applied to set default value
+// of the field on creation. Codegen fails if the default function
+// doesn't return the same concrete that was set for the INET6 type.
+//
+//	field.INET6("ipv6").
+//		Default(net.IP{})
+func (b *inet6Builder) Default(ip net.IP) *inet6Builder {
+	b.desc.Default = ip
+	return b
+}
+
+// SchemaType overrides the default database type with a custom
+// schema type (per dialect) for inet6.
+//
+//	field.INET6("ipv6").
+//		SchemaType(map[string]string{
+//			dialect.Postgres: "CustomINET6",
+//		})
+func (b *inet6Builder) SchemaType(types map[string]string) *inet6Builder {
+	b.desc.SchemaType = types
+	return b
+}
+
+// Annotations adds a list of annotations to the field object to be used by
+// codegen extensions.
+//
+//	field.INET6("ipv6").
+//		Annotations(
+//			entgql.OrderField("ID"),
+//		)
+func (b *inet6Builder) Annotations(annotations ...schema.Annotation) *inet6Builder {
+	b.desc.Annotations = append(b.desc.Annotations, annotations...)
+	return b
+}
+
+// Descriptor implements the ent.Field interface by returning its descriptor.
+func (b *inet6Builder) Descriptor() *Descriptor {
 	b.desc.checkGoType(valueScannerType)
 	return b.desc
 }

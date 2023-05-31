@@ -41,3 +41,5 @@ require (
 	golang.org/x/text v0.8.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace ariga.io/atlas v0.10.2-0.20230427182402-87a07dfb83bf => github.com/Weilence/atlas v0.0.0-20230531023515-396a32f73cba

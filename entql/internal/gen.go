@@ -51,6 +51,7 @@ func main() {
 			field.TypeFloat64,
 			field.TypeString,
 			field.TypeUUID,
+			field.TypeINET6,
 			field.TypeOther,
 		},
 	}); err != nil {
@@ -66,7 +67,7 @@ func main() {
 
 func ops(t field.Type) []string {
 	switch t {
-	case field.TypeBool, field.TypeBytes, field.TypeUUID, field.TypeOther:
+	case field.TypeBool, field.TypeBytes, field.TypeUUID, field.TypeINET6, field.TypeOther:
 		return []string{"EQ", "NEQ"}
 	default:
 		return []string{"EQ", "NEQ", "LT", "LTE", "GT", "GTE"}
@@ -81,6 +82,8 @@ func ident(t field.Type) string {
 		return "time"
 	case field.TypeUUID:
 		return "value"
+	case field.TypeINET6:
+		return "inet6"
 	case field.TypeOther:
 		return "other"
 	default:
@@ -89,7 +92,7 @@ func ident(t field.Type) string {
 }
 
 func typ(t field.Type) string {
-	if t == field.TypeUUID || t == field.TypeOther {
+	if t == field.TypeUUID || t == field.TypeINET6 || t == field.TypeOther {
 		return "driver.Valuer"
 	}
 	return t.String()

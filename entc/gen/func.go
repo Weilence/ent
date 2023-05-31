@@ -107,6 +107,8 @@ func quote(v any) any {
 // fieldOps returns all predicate operations for a given field.
 func fieldOps(f *Field) (ops []Op) {
 	switch t := f.Type.Type; {
+	case t == field.TypeINET6:
+		ops = numericOps
 	case f.HasGoType() && !f.ConvertedToBasic() && !f.Type.Valuer():
 	case t == field.TypeJSON:
 	case t == field.TypeBool:

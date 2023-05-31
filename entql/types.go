@@ -1895,6 +1895,90 @@ func ValueNot(x ValueP) ValueP {
 	return expr
 }
 
+// Inet6P is the interface for predicates of type net.IP (`type P[net.IP]`).
+type Inet6P interface {
+	Fielder
+	inet6()
+}
+
+// inet6P implements the Inet6P interface.
+type inet6P struct {
+	P
+	done func(string)
+}
+
+func (p *inet6P) Field(name string) P {
+	p.done(name)
+	return p.P
+}
+
+func (*inet6P) inet6() {}
+
+// Inet6Nil applies the Nil operation
+func Inet6Nil() Inet6P {
+	field := &Field{}
+	done := func(name string) { field.Name = name }
+	return &inet6P{P: EQ(field, (*Value)(nil)), done: done}
+}
+
+// Inet6NotNil applies the NotNil operation
+func Inet6NotNil() Inet6P {
+	field := &Field{}
+	done := func(name string) { field.Name = name }
+	return &inet6P{P: NEQ(field, (*Value)(nil)), done: done}
+}
+
+// Inet6EQ applies the EQ operation on the given value.
+func Inet6EQ(v driver.Valuer) Inet6P {
+	field := &Field{}
+	value := &Value{V: v}
+	done := func(name string) { field.Name = name }
+	return &inet6P{P: EQ(field, value), done: done}
+}
+
+// Inet6NEQ applies the NEQ operation on the given value.
+func Inet6NEQ(v driver.Valuer) Inet6P {
+	field := &Field{}
+	value := &Value{V: v}
+	done := func(name string) { field.Name = name }
+	return &inet6P{P: NEQ(field, value), done: done}
+}
+
+// Inet6Or returns a composed predicate that represents the logical OR predicate.
+func Inet6Or(x, y Inet6P, z ...Inet6P) Inet6P {
+	expr := &inet6P{}
+	expr.done = func(name string) {
+		zs := make([]P, len(z))
+		for i := range z {
+			zs[i] = z[i].Field(name)
+		}
+		expr.P = Or(x.Field(name), y.Field(name), zs...)
+	}
+	return expr
+}
+
+// Inet6And returns a composed predicate that represents the logical AND predicate.
+func Inet6And(x, y Inet6P, z ...Inet6P) Inet6P {
+	expr := &inet6P{}
+	expr.done = func(name string) {
+		zs := make([]P, len(z))
+		for i := range z {
+			zs[i] = z[i].Field(name)
+		}
+		expr.P = And(x.Field(name), y.Field(name), zs...)
+	}
+	return expr
+}
+
+// Inet6Not returns a predicate that represents the logical negation of the given predicate.
+func Inet6Not(x Inet6P) Inet6P {
+	expr := &inet6P{}
+	expr.done = func(name string) {
+		expr.P = Not(x.Field(name))
+	}
+	return expr
+}
+
 // OtherP is the interface for predicates of type other (`type P[other]`).
 type OtherP interface {
 	Fielder
