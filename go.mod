@@ -3,7 +3,7 @@ module entgo.io/ent
 go 1.20
 
 require (
-	ariga.io/atlas v0.10.2-0.20230427182402-87a07dfb83bf
+	ariga.io/atlas v0.12.1-0.20230620155259-b8e83e5e8ad6
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/go-openapi/inflect v0.19.0
 	github.com/google/uuid v1.3.0
@@ -42,4 +42,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace ariga.io/atlas v0.10.2-0.20230427182402-87a07dfb83bf => github.com/Weilence/atlas v0.0.0-20230531023515-396a32f73cba
+replace ariga.io/atlas v0.12.1-0.20230620155259-b8e83e5e8ad6 => github.com/Weilence/atlas v0.0.0-20231108161448-8e16d8e0282c

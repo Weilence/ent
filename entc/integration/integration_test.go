@@ -792,6 +792,10 @@ func Select(t *testing.T, client *ent.Client) {
 		require.NoError(err)
 		require.EqualValues(len(p.Name), n)
 	}
+
+	// Order by random value should compile a valid query.
+	_, err = client.User.Query().Order(sql.OrderByRand()).All(ctx)
+	require.NoError(err)
 }
 
 func Aggregate(t *testing.T, client *ent.Client) {
@@ -972,6 +976,15 @@ func Predicate(t *testing.T, client *ent.Client) {
 	require.Equal(lab.ID, client.Group.Query().Where(group.Active(false)).OnlyIDX(ctx))
 	require.Equal(hub.ID, client.Group.Query().Where(group.ActiveNEQ(false)).OnlyIDX(ctx))
 	require.Equal(lab.ID, client.Group.Query().Where(group.ActiveNEQ(true)).OnlyIDX(ctx))
+
+	client.User.CreateBulk(
+		client.User.Create().SetAge(1).SetName("Ariel").SetNickname("A"),
+		client.User.Create().SetAge(1).SetName("Ariel").SetNickname("A%"),
+	).ExecX(ctx)
+	a1 := client.User.Query().Where(sql.FieldsHasPrefix(user.FieldName, user.FieldNickname)).OnlyX(ctx)
+	require.Equal("A", a1.Nickname)
+	a2 := client.User.Query().Where(user.Not(sql.FieldsHasPrefix(user.FieldName, user.FieldNickname))).OnlyX(ctx)
+	require.Equal("A%", a2.Nickname)
 }
 
 func AddValues(t *testing.T, client *ent.Client) {
