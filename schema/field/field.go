@@ -190,13 +190,15 @@ type inet6Scanner net.IP
 // Scan implements field.ValueScanner
 func (v *inet6Scanner) Scan(src any) error {
 	var ip net.IP
-	switch d := src.(type) {
-	case []byte:
-		ip = net.ParseIP(string(d))
-	case string:
-		ip = net.ParseIP(d)
-	default:
-		return fmt.Errorf("invalid ip address: %v", src)
+	if src != nil {
+		switch d := src.(type) {
+		case []byte:
+			ip = net.ParseIP(string(d))
+		case string:
+			ip = net.ParseIP(d)
+		default:
+			return fmt.Errorf("invalid ip address: %v", src)
+		}
 	}
 
 	*v = inet6Scanner(ip)
